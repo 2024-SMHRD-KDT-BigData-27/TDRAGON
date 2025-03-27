@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snap Note recoding</title>
+<style>
+body {
+	margin: 0;
+	font-family: Arial, sans-serif;
+	background-color: #f5f8fa;
+}
+
+.container {
+	display: flex;
+	height: 100vh;
+}
+
+.sidebar {
+	width: 240px;
+	background-color: #ffffff;
+	padding: 20px;
+	border-right: 1px solid #e5e7eb;
+	box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.main {
+	flex: 1;
+	padding: 30px;
+	background-color: #f9fafb;
+	overflow-y: auto;
+	position: relative;
+}
+
+.rightbar {
+	width: 320px;
+	background-color: #ffffff;
+	padding: 20px;
+	border-left: 1px solid #e5e7eb;
+	box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.menu, .notes, .calendar, .info {
+	margin-bottom: 30px;
+}
+
+.menu-item, .note-item, .calendar-day, .info-item {
+	margin: 15px 0;
+	color: #374151;
+	font-size: 14px;
+}
+
+.menu-item {
+	padding: 10px;
+	color: #374151;
+	font-size: 14px;
+	cursor: pointer;
+	border-radius: 5px;
+	transition: background-color 0.3s ease;
+}
+
+.menu-item:hover {
+	background-color: #f3f4f6;
+}
+
+/* 활성화된 메뉴 스타일 */
+.menu-item.active {
+	font-weight: bold;
+	color: black;
+	background-color: #e5e7eb;
+	border-left: 4px solid #374151;
+	/* 왼쪽 강조선 추가 */
+}
+
+.banner {
+	display: flex;
+	gap: 40px;
+	margin-bottom: 30px;
+}
+
+.banner div {
+	flex: 1;
+	padding: 20px;
+	background-color: #e5e7eb;
+	border-radius: 10px;
+	text-align: center;
+	font-size: 14px;
+	color: #111827;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.calendar {
+	text-align: center;
+	font-size: 14px;
+	color: #374151;
+}
+
+.calendar-day {
+	margin-top: 10px;
+	font-weight: bold;
+}
+
+.info-item {
+	padding: 10px;
+	border-bottom: 1px solid #e5e7eb;
+}
+
+.buttons {
+	display: flex;
+	justify-content: center;
+	gap: 40px;
+}
+
+button {
+	background-color: white;
+	border: 2px solid #ddd;
+	border-radius: 50%;
+	width: 60px;
+	height: 60px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 24px;
+	cursor: pointer;
+	box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+button:hover {
+	background-color: #f0f0f0;
+}
+
+.logo-image {
+	width: 180px;
+	/* 가로 크기 */
+	height: auto;
+	/* 높이는 자동 조정 (비율 유지) */
+	text-align: center;
+	margin-left: 25px;
+	overflow: hidden;
+	/* 벗어나는 요소 숨김 */
+}
+
+.search-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-bottom: 20px;
+}
+
+#searchInput {
+	width: 1500px;
+	padding: 10px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	font-size: 14px;
+}
+
+#searchBtn {
+	background-color: #e5e7eb;
+	color: black;
+	border: none;
+	padding: 5px 10px;
+	margin-left: 10px;
+	border-radius: 5px;
+	height: 40px;
+	cursor: pointer;
+}
+
+#searchBtn:hover {
+	background-color: #9ca3af;
+}
+
+/* 탭 컨테이너 스타일 */
+.notes-tabs {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 10px;
+}
+
+/* 활성화된 탭 스타일 (최근 노트) */
+.tab-active {
+	background-color: white;
+	border: 2px solid #374151;
+	border-radius: 10px;
+	padding: 8px 8px;
+	font-size: 14px;
+	font-weight: bold;
+	cursor: pointer;
+	white-space: nowrap;
+	width: 90px;
+	height: 40px;
+}
+
+.notes {
+	margin-top: 10px;
+}
+
+.note-item {
+	display: flex;
+	/* 한 줄 정렬 */
+	justify-content: space-between;
+	/* 요소 사이 간격 조정 */
+	align-items: center;
+	/* 세로 중앙 정렬 */
+	padding: 10px;
+	border-bottom: 1px solid #e5e7eb;
+	/* 줄 간 구분 */
+}
+
+.note-title {
+	font-weight: bold;
+	flex: 2;
+	/* 가변 너비 */
+	text-align: left;
+}
+
+.note-date {
+	flex: 1;
+	text-align: center;
+	color: #6b7280;
+	/* 회색 */
+	font-size: 14px;
+}
+
+.note-time {
+	flex: 1;
+	text-align: right;
+	color: #6b7280;
+	font-size: 14px;
+}
+
+/* 캘린더 스타일 */
+.custom-calendar {
+	background-color: #ffffff;
+	text-align: center;
+	padding: 20px;
+	border-left: 1px solid #e5e7eb;
+	/* 👉 동일한 선 추가 */
+}
+
+.custom-month-year {
+	font-size: 20px;
+	margin-bottom: 10px;
+}
+
+.custom-calendar-table {
+	width: 100%;
+	max-width: 400px;
+	border-collapse: collapse;
+	margin: 0 auto;
+}
+
+.custom-calendar-table th, .custom-calendar-table td {
+	padding: 10px;
+	border: 1px solid #ddd;
+	text-align: center;
+}
+
+.custom-day-title {
+	font-weight: bold;
+	background-color: #f3f4f6;
+}
+
+.custom-today {
+	background-color: #efd5c8;;
+	font-weight: bold;
+}
+
+/* 버튼 스타일 */
+.custom-button {
+	display: block;
+	margin: 10px auto;
+	padding: 8px 12px;
+	background-color: #374151;
+	color: white;
+	border: none;
+	cursor: pointer;
+	text-align: center;
+	width: fit-content;
+}
+
+.custom-button:hover {
+	background-color: #1f2937;
+}
+
+/* 정보 섹션 */
+.custom-info {
+	background-color: #ffffff;
+	padding: 20px;
+	margin-top: 20px;
+	border-radius: 10px;
+}
+
+.custom-info-item {
+	padding: 10px;
+	border-bottom: 1px solid #e5e7eb;
+	font-size: 14px;
+	color: #374151;
+}
+
+/* 캘린더 스타일 */
+.custom-calendar {
+	text-align: center;
+	padding: 20px;
+}
+
+.calendar-header {
+	background: none;
+	/* 배경 제거 */
+	border: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 15px;
+	/* 버튼과 년/월 사이 간격 */
+}
+
+.calendar-header button {
+	width: 40px;
+	/* 버튼 너비 */
+	height: 40px;
+	/* 버튼 높이 */
+	font-size: 20px;
+	/* 아이콘 크기 */
+}
+
+.custom-month-year {
+	font-size: 20px;
+	margin-bottom: 10px;
+}
+
+.custom-calendar-table {
+	width: 100%;
+	max-width: 400px;
+	border-collapse: collapse;
+	margin: 0 auto;
+}
+
+.custom-calendar-table th, .custom-calendar-table td {
+	padding: 10px;
+	border: 1px solid #ddd;
+	text-align: center;
+}
+
+.custom-day-title {
+	font-weight: bold;
+	background-color: #f3f4f6;
+}
+
+/* 버튼 스타일 */
+.custom-button {
+	display: block;
+	margin: 10px auto;
+	padding: 8px 12px;
+	background-color: #374151;
+	color: white;
+	border: none;
+	cursor: pointer;
+	text-align: center;
+	width: fit-content;
+}
+
+.custom-button:hover {
+	background-color: #1f2937;
+}
+
+/* 회의록 & 메모 섹션 스타일 */
+.meeting-section {
+	width: 100%;
+	max-width: 400px;
+	/* 캘린더와 동일한 너비 */
+	margin: 0px 0px 0px 0px;
+	/* 캘린더 아래로 정렬 */
+	background: transparent;
+	/* 캘린더 배경과 동일 */
+	border-radius: 10px;
+	text-align: center;
+}
+
+/* 날짜 제목 스타일 */
+#selected-date {
+	font-size: 18px;
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+/* 회의록 제목 스타일 */
+.meeting-title {
+	margin-bottom: 10px;
+}
+
+.meeting-title h4 {
+	font-size: 16px;
+	margin-bottom: 5px;
+	color: #374151;
+}
+
+.meeting-title p {
+	font-size: 14px;
+	color: #6b7280;
+	background: #f3f4f6;
+	padding: 8px;
+	border-radius: 5px;
+}
+
+/* 메모 입력창 스타일 */
+.memo-container {
+	margin-top: 10px;
+}
+
+textarea {
+	width: 320px;
+	height: 80px;
+	padding: 10px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	font-size: 14px;
+	resize: none;
+}
+
+/* 저장 버튼 스타일 */
+.memo-save-btn {
+	display: block;
+	width: 100%;
+	height: 40px;
+	max-width: 100px;
+	background-color: #374151;
+	color: white;
+	border: none;
+	padding: 8px 12px;
+	margin: 10px auto;
+	border-radius: 5px;
+	cursor: pointer;
+	font-size: 14px;
+}
+
+.memo-save-btn:hover {
+	background-color: #1f2937;
+}
+
+.content {
+	flex: 1;
+	background-color: white;
+	padding: 30px;
+	border-radius: 10px;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	min-height: 500px;
+	/* 적절한 최소 높이 설정 */
+}
+
+.note-info {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	/* 제목과 버튼을 양쪽 정렬 */
+	width: 100%;
+	border-bottom: 2px solid #e5e7eb;
+	/* 선 추가 */
+}
+
+.save-button {
+	width: 100px;
+	height: 40px;
+	background-color: #3B82F6;
+	color: white;
+	border: none;
+	padding: 8px 15px;
+	border-radius: 5px;
+	font-size: 14px;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+.save-button:hover {
+	background-color: #2563eb;
+}
+
+.folder, .attendees, .memo {
+	margin-bottom: 15px;
+}
+
+.memo textarea {
+	height: 80px;
+	padding: 10px 0;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+}
+
+.audio-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 15px;
+	width: 1545px;
+	padding: 10px;
+	background-color: #f8fafc;
+	border-top: 1px solid #e5e7eb;
+	margin: -30px -30px -30px -30px;
+	margin-top: auto;
+	/* 변경 */
+}
+
+.play-button {
+	width: 40px;
+	height: 40px;
+	font-size: 18px;
+	border: none;
+	background: #3B82F6;
+	color: white;
+	border-radius: 50%;
+	cursor: pointer;
+}
+
+.play-button:hover {
+	background: #2563eb;
+}
+
+.progress-bar {
+	flex: 1;
+	height: 6px;
+	background: #e5e7eb;
+	border-radius: 3px;
+	position: relative;
+	overflow: hidden;
+}
+
+.progress {
+	width: 0%;
+	height: 100%;
+	background: #3B82F6;
+	position: absolute;
+	left: 0;
+	top: 0;
+	transition: width 0.2s linear;
+}
+
+.time {
+	font-size: 14px;
+	color: #6b7280;
+	min-width: 50px;
+}
+
+/* 팝업 스타일 */
+.popup {
+	display: none;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 300px;
+	background: white;
+	box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+	border-radius: 8px;
+	padding: 20px;
+	z-index: 1000;
+}
+
+.popup-content {
+	display: flex;
+	flex-direction: column;
+}
+
+.close-btn {
+	align-self: flex-end;
+	cursor: pointer;
+	font-size: 18px;
+}
+
+/* 입력 필드 스타일 */
+.input-container {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 15px;
+}
+
+.input-container input {
+	flex: 1;
+	padding: 8px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+}
+
+.add-btn {
+	background: #007bff;
+	color: white;
+	border: none;
+	padding: 5px 10px;
+	border-radius: 50%;
+	cursor: pointer;
+}
+
+/* 참석자 목록 스타일 */
+#attendeeList {
+	list-style: none;
+	padding: 0;
+}
+
+#attendeeList li {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 8px;
+}
+
+.profile-img {
+	width: 25px;
+	height: 25px;
+	border-radius: 50%;
+	object-fit: cover;
+}
+
+/* 파일 첨부 스타일*/
+.upload-container {
+	background-color: #f9fafb;
+	padding: 20px;
+	border-radius: 8px;
+	box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+	text-align: center;
+	width: 600px;
+}
+
+.upload-container h3 {
+	font-size: 16px;
+	margin-bottom: 10px;
+}
+
+.upload-info {
+	font-size: 14px;
+	color: #666;
+	margin-bottom: 15px;
+}
+
+.upload-btn {
+	display: flex;
+	/* ✅ Flexbox 활성화 */
+	background-color: white;
+	color: black;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	align-items: center;
+	/* 수직 중앙 정렬 */
+	justify-content: center;
+	/* 가로 중앙 정렬 */
+	gap: 5px;
+	font-size: 14px;
+	width: 100px;
+	height: 40px;
+}
+
+.upload-btn svg {
+	width: 16px;
+	height: 16px;
+}
+
+.upload-btn:hover {
+	background-color: #696969;
+	color: white;
+}
+
+input[type="file"] {
+	display: none;
+}
+
+#note_title {
+	width: 1200px;
+	font-size: 14px;
+	padding: 8px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+}
+</style>
+</head>
+
+<body>
+
+
+	<div class="container">
+		<div class="sidebar">
+			<div class="menu">
+
+
+				<!-- 사이트 로고 및 이름 -->
+				<a href="main"> <img src="images/snapnote_logo.png" alt="사이트 로고"
+					class="logo-image">
+				</a> <br>
+
+				<!-- 버튼 영역 -->
+				<div class="buttons">
+					<!-- 녹음 버튼 -->
+					<button id="recordBtn" onclick="location.href='recoding'">
+						<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
+							fill="currentColor" class="bi bi-mic" viewBox="0 0 16 16">
+                            <path
+								d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5" />
+                            <path
+								d="M10 8a2 2 0 1 1-4 0V3a2 2 0 1 1 4 0zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3" />
+                        </svg>
+						<path
+							d="M3.5 6.5A.5.5 0 0 1 4 7v1a4 4 0 0 0 8 0V7a.5.5 0 0 1 1 0v1a5 5 0 0 1-4.5 4.975V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 .5-.5" />
+						<path
+							d="M10 8a2 2 0 1 1-4 0V3a2 2 0 1 1 4 0zM8 0a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V3a3 3 0 0 0-3-3" />
+						</svg>
+					</button>
+
+					<!-- 업로드 버튼 -->
+					<button id="uploadBtn">
+						<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
+							fill="currentColor" class="bi bi-upload" viewBox="0 0 16 16">
+                            <path
+								d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
+                            <path
+								d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z" />
+                        </svg>
+					</button>
+
+				</div>
+
+				<br> <br>
+
+				<div class="menu-item active">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+						fill="currentColor" class="bi bi-house-door" viewBox="0 0 16 16">
+                        <path
+							d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z" />
+                    </svg>
+					홈
+				</div>
+				<div class="menu-item" onclick="location.href='allnotes'">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+						fill="currentColor" class="bi bi-journal-text" viewBox="0 0 16 16">
+                        <path
+							d="M5 10.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5" />
+                        <path
+							d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2" />
+                        <path
+							d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1z" />
+                    </svg>
+					전체 노트
+				</div>
+				<div class="menu-item" onclick="location.href='trash'">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+						fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                        <path
+							d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5" />
+                    </svg>
+					휴지통
+				</div>
+				<script>
+					for (let i = 0; i < 19; i++) {
+						document.write("<br>");
+					}
+				</script>
+				<div class="menu-item" onclick="location.href='index'">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+						fill="currentColor" class="bi bi-door-closed" viewBox="0 0 16 16">
+                        <path
+							d="M3 2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v13h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3zm1 13h8V2H4z" />
+                        <path d="M9 9a1 1 0 1 0 2 0 1 1 0 0 0-2 0" />
+                    </svg>
+					로그아웃
+				</div>
+				<div class="menu-item" onclick="location.href='update'">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+						fill="currentColor" class="bi bi-person-gear" viewBox="0 0 16 16">
+                        <path
+							d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m.256 7a4.5 4.5 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10q.39 0 .74.025c.226-.341.496-.65.804-.918Q8.844 9.002 8 9c-5 0-6 3-6 4s1 1 1 1zm3.63-4.54c.18-.613 1.048-.613 1.229 0l.043.148a.64.64 0 0 0 .921.382l.136-.074c.561-.306 1.175.308.87.869l-.075.136a.64.64 0 0 0 .382.92l.149.045c.612.18.612 1.048 0 1.229l-.15.043a.64.64 0 0 0-.38.921l.074.136c.305.561-.309 1.175-.87.87l-.136-.075a.64.64 0 0 0-.92.382l-.045.149c-.18.612-1.048.612-1.229 0l-.043-.15a.64.64 0 0 0-.921-.38l-.136.074c-.561.305-1.175-.309-.87-.87l.075-.136a.64.64 0 0 0-.382-.92l-.148-.045c-.613-.18-.613-1.048 0-1.229l.148-.043a.64.64 0 0 0 .382-.921l-.074-.136c-.306-.561.308-1.175.869-.87l.136.075a.64.64 0 0 0 .92-.382zM14 12.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0" />
+                    </svg>
+					개인정보수정
+				</div>
+
+
+
+			</div>
+		</div>
+		<div class="main">
+
+			<div class="search-container">
+				<input type="text" id="searchInput" placeholder="검색어를 입력해주세요">
+				<button id="searchBtn">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+						fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                        <path
+							d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                    </svg>
+				</button>
+			</div>
+
+
+			<div class="container">
+				<div class="content">
+					<!-- 날짜, 제목 -->
+					<form action="uploadfile" method="post"
+						enctype="multipart/form-data">
+
+						<input type="hidden" value="${session.users.user_email}"
+							name="host_email">
+						<div class="note-info">
+							<h2>제목 :</h2>
+							<input id="note_title" type="text" placeholder="제목을 입력해주세요"
+								name="meeting_title">
+							<button class="save-button" type="submit">저장하기</button>
+
+						</div>
+
+
+						<!-- 폴더 분류 -->
+						<div class="folder">
+							<p style="color: gray;">
+								날짜 : <span
+									th:text="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"></span>
+							</p>
+						</div>
+
+
+
+						<div class="upload-container">
+							<h3>
+								<strong>녹음 또는 파일 업로드로 음성 기록을 만들어 보세요.</strong>
+							</h3>
+							<p class="upload-info">
+								파일 업로드 시 다음 '파일 첨부'를 클릭하여 지원 형식에 맞는 파일을 첨부하세요.<br> (지원 형식:
+								.mp3, .wav)
+							</p>
+							<label for="fileInput" class="upload-btn">파일 첨부</label> <input
+								type="file" id="fileInput" name="file" accept=".mp3,.wav"
+								style="display: none;">
+						</div>
+
+					</form>
+
+
+
+				</div>
+			</div>
+
+
+
+
+		</div>
+
+	</div>
+</body>
+
+<script>
+//파일 선택 버튼 클릭 시 파일 선택 창 열기
+document.getElementById("fileUploadBtn").addEventListener("click", async (event) => {
+    event.preventDefault(); // 기본 제출 방지
+
+    const meetingTitle = document.getElementById("note_title").value.trim();
+    if (!meetingTitle) {
+        alert("❌ 제목을 입력해주세요.");
+        return;
+    }
+
+    // 파일이 아직 선택되지 않았으면 -> 파일 선택창 열기
+    const fileInput = document.getElementById("fileInput");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        // 파일이 아직 없으면 선택창 열기
+        fileInput.click();
+        return;
+    }
+
+ // FormData 생성 및 확인
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("meeting_title", meetingTitle);
+
+    console.log("📂 전송할 파일:", file.name);
+    console.log("📌 FormData 확인 (파일 크기):", file.size, "bytes");
+    console.log("📌 FormData 확인 (file key 값):", formData.get("file")); 
+    console.log("📌 FormData 확인 (title key 값):", formData.get("meeting_title")); 
+
+
+    try {
+    	const response = await fetch("/uploadfile", {
+    	    method: "POST",
+    	    body: formData // 🔥 headers 설정하면 안 됨!
+    	});
+
+
+        if (response.ok) {
+            alert("✅ 파일 업로드 성공!");
+            window.location.href = "/allnotes"; // 업로드 후 이동
+        } else {
+            const errorMsg = await response.text();
+            alert(❌ 업로드 실패: ${errorMsg});
+        }
+    } catch (error) {
+        console.error("🚨 서버 연결 실패!", error);
+        alert("🚨 서버 연결 실패!");
+    }
+});
+
+	
+	
+	
+</script>
+
+</html>

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>snapnote-login</title>
+</head>
+<style>
+@import
+	url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css")
+	;
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	font-family: Arial, sans-serif;
+	margin: 0;
+	padding: 0;
+}
+
+.wrapper {
+	width: 100%;
+	height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background: #ebecf0;
+	overflow: hidden;
+}
+
+.container {
+	border-radius: 10px;
+	box-shadow: -5px -5px 10px #fff, 5px 5px 10px #babebc;
+	position: absolute;
+	width: 768px;
+	min-height: 480px;
+	overflow: hidden;
+}
+
+form {
+	background: #ebecf0;
+	display: flex;
+	flex-direction: column;
+	padding: 0 50px;
+	height: 100%;
+	justify-content: center;
+	align-items: center;
+}
+
+form input {
+	background: #eee;
+	padding: 16px;
+	margin: 8px 0;
+	width: 85%;
+	border: 0;
+	outline: none;
+	border-radius: 20px;
+	box-shadow: inset 7px 2px 10px #babebc, inset -5px -5px 12px #fff;
+}
+
+button {
+	border-radius: 20px;
+	border: none;
+	outline: none;
+	font-size: 15px;
+	font-weight: bold;
+	padding: 15px 45px;
+	margin: 14px;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	cursor: pointer;
+	transition: transform 80ms ease-in;
+}
+
+.form_btn {
+	box-shadow: -5px -5px 10px #fff, 5px 5px 8px #babebc;
+}
+
+.form_btn:active {
+	box-shadow: inset 1px 1px 2px #babebc, inset -1px -1px 2px #fff;
+}
+
+.overlay_btn {
+	background-color: #e5e7eb;
+	color: #1f2937;
+	box-shadow: -5px -5px 10px #1f2937, 5px 5px 8px #1f2937;
+}
+
+.sign-in-container {
+	position: absolute;
+	left: 0;
+	width: 50%;
+	height: 100%;
+	transition: all 0.5s;
+}
+
+.sign-up-container {
+	position: absolute;
+	left: 0;
+	width: 50%;
+	height: 100%;
+	opacity: 0;
+	transition: all 0.5s;
+}
+
+.overlay-left {
+	display: flex;
+	flex-direction: column;
+	padding: 0 50px;
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+	right: 0;
+	width: 50%;
+	height: 100%;
+	opacity: 0;
+	background-color: #374151;
+	color: #fff;
+	transition: all 0.5s;
+}
+
+.overlay-right {
+	display: flex;
+	flex-direction: column;
+	padding: 0 50px;
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+	right: 0;
+	width: 50%;
+	height: 100%;
+	background-color: #374151;
+	color: #fff;
+	transition: all 0.5s;
+}
+
+.container.right-panel-active .sign-in-container {
+	transform: translateX(100%);
+	opacity: 0;
+}
+
+.container.right-panel-active .sign-up-container {
+	transform: translateX(100%);
+	opacity: 1;
+	z-index: 2;
+}
+
+.container.right-panel-active .overlay-right {
+	transform: translateX(-100%);
+	opacity: 0;
+}
+
+.container.right-panel-active .overlay-left {
+	transform: translateX(-100%);
+	opacity: 1;
+	z-index: 2;
+}
+
+.social-links {
+	margin: 20px 0;
+}
+
+form h1 {
+	font-weight: bold;
+	margin: 0;
+	color: #000;
+}
+
+p {
+	font-size: 16px;
+	font-weight: bold;
+	letter-spacing: 0.5px;
+	margin: 20px 0 30px;
+}
+
+span {
+	font-size: 12px;
+	color: #000;
+	letter-spacing: 0.5px;
+	margin-bottom: 10px;
+}
+
+.social-links div {
+	width: 40px;
+	height: 40px;
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	margin: 0 5px;
+	border-radius: 50%;
+	box-shadow: -5px -5px 10px #fff, 5px 5px 8px #babebc;
+	cursor: pointer;
+}
+
+.social-links a {
+	color: #000;
+}
+
+.social-links div:active {
+	box-shadow: inset 1px 1px 2px #babebc, inset -1px -1px 2px #fff;
+}
+
+.email-check-container {
+	width: 241.39px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.email-check-container input {
+	width: 100px;
+	flex: 1;
+	padding: 16px;
+	background: #eee;
+	border: 0;
+	outline: none;
+	border-radius: 20px;
+	box-shadow: inset 7px 2px 10px #babebc, inset -5px -5px 12px #fff;
+}
+
+.email-check-container button {
+	width: 47px;
+	height: 47px;
+	border-radius: 17px;
+	border: none;
+	background-color: #374151;
+	padding: 0px;
+	margin: 0px;
+	color: white;
+	cursor: pointer;
+	font-weight: bold;
+	transition: background 0.3s ease;
+	text-align: center; .
+	email-check-container button: hover{
+            background-color: #1f2937;
+}
+
+/* 중복 확인 메시지 스타일 */
+#emailCheckMsg {
+	font-size: 12px;
+	margin-top: 5px;
+	color: black;
+}
+</style>
+
+<body>
+
+
+	<div class="wrapper">
+
+		<div class="container">
+			<div class="sign-up-container">
+				<form action="join" method="post">
+					<h1>Sign Up</h1>
+					<br> <span>회원가입을 위해 정보를 입력해주세요.</span> <input type="text"
+						name="user_name" id="signupName" placeholder="Name">
+					<!-- 이메일 입력 필드 + 중복 확인 버튼 -->
+					<div class="email-check-container">
+						<input type="email" name="user_email" id="emailInput"
+							placeholder="Email">
+						<button type="button" id="checkEmailBtn">
+							<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+								fill="currentColor" class="bi bi-check2" viewBox="0 0 16 16">
+                                <path
+									d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0" />
+                            </svg>
+						</button>
+					</div>
+
+					<!-- 중복 확인 메시지 -->
+					<span id="emailCheckMsg"></span> <input type="password"
+						name="user_pw" id="signupPassword" placeholder="Password">
+					<span id="signupErrorMsg"
+						style="color: red; font-size: 12px; margin-top: 5px;"></span>
+					<button type="submit" class="form_btn" id="signupBtn">가입하기</button>
+				</form>
+			</div>
+			<div class="sign-in-container">
+				<form onsubmit="return false" method="post">
+					<h1>Login</h1>
+					<br> <span>로그인하고 다양한 서비스를 경험해 보세요!</span> <input type="email"
+						name="user_email" id="loginEmail" placeholder="Email"> <input
+						type="password" name="user_pw" id="loginPassword"
+						placeholder="Password">
+					<!-- 로그인 실패 메시지 -->
+					<span id="loginErrorMsg"
+						style="color: red; font-size: 12px; margin-top: 5px;"></span>
+					<button type="button" class="form_btn" id="loginBtn">로그인</button>
+				</form>
+			</div>
+			<div class="overlay-container">
+				<div class="overlay-left">
+					<h1>
+						회원가입을 <br> 축하합니다
+					</h1>
+					<button id="signIn" class="overlay_btn">로그인</button>
+				</div>
+				<div class="overlay-right">
+
+					<h1>환영합니다 !</h1>
+					<p>아직 회원이 아니신가요 ?</p>
+					<button id="signUp" class="overlay_btn">회원가입</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+
+<script>
+const signUpBtn = document.getElementById("signUp");
+const signInBtn = document.getElementById("signIn");
+const checkEmailBtn = document.getElementById("checkEmailBtn");
+const container = document.querySelector(".container");
+const emailInput = document.getElementById("emailInput"); // 이메일 입력 필드
+const emailCheckMsg = document.getElementById("emailCheckMsg"); // 오류 메시지 출력 위치
+const loginBtn = document.getElementById("loginBtn"); // 로그인 버튼
+
+signUpBtn.addEventListener("click", () => {
+    container.classList.add("right-panel-active");
+});
+signInBtn.addEventListener("click", () => {
+    container.classList.remove("right-panel-active");
+});
+
+
+loginBtn.addEventListener("click", async () => {
+    //const form = document.querySelector("#loginform");
+    //console.log(form);
+    const response =  await fetch("/smart/login",
+    { method: "POST",
+    	headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "user_email="+ document.querySelector("#loginEmail").value+"&user_pw="+document.querySelector("#loginPassword").value
+    });
+    
+    const result = await response.json();
+    
+    console.log("결과값 >> ", result);
+    if(result.users == null){
+    	alert("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
+    }else{
+    	window.location.href = "/smart/main"
+    }
+    
+    // 로그인 버튼 클릭 시 폼을 제출
+    //form.submit();
+
+    // 0.5초 후 URL 확인 (로그인 성공 여부 판단)
+    //setTimeout(() => {
+    //    if (window.location.href.includes("/login")) {
+    //        alert("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
+    //    }
+    // }, 500);
+});
+
+
+
+checkEmailBtn.addEventListener("click", async () => {
+    const email = emailInput.value.trim();
+
+    if (!email) {
+        emailCheckMsg.textContent = "이메일을 입력해주세요.";
+        emailCheckMsg.style.color = "red";
+        return;
+    }
+
+    try {
+        console.log("✅ [DEBUG] 이메일 중복 확인 요청: ", email);
+
+        // 🔥 URL 확인 (서버의 @RequestMapping("/smart")가 있다면 여기도 맞춰야 함)
+        const response = await fetch("/smart/check-email", {  // 🔥 URL 변경
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: `user_email=${encodeURIComponent(email)}`
+        });
+
+        const result = await response.json();
+        console.log("🔍 [DEBUG] 서버 응답: ", result);
+
+        if (result.status === "duplicate") {
+            emailCheckMsg.textContent = "이미 사용 중인 이메일입니다.";
+            emailCheckMsg.style.color = "red";
+        } else if (result.status === "available") {
+            emailCheckMsg.textContent = "사용 가능한 이메일입니다.";
+            emailCheckMsg.style.color = "green";
+            container.classList.add("right-panel-active");
+        } else {
+            emailCheckMsg.textContent = "오류 발생: " + result.message;
+            emailCheckMsg.style.color = "red";
+        }
+    } catch (error) {
+        console.error("❌ AJAX 요청 오류:", error);
+        emailCheckMsg.textContent = "서버 오류 발생, 다시 시도해주세요.";
+        emailCheckMsg.style.color = "red";
+    }
+});
+
+
+</script>
+
+</html>

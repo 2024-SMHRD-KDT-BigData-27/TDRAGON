@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snap Note update</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f8fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        .wrapper {
+            display: flex;
+            flex-direction: column;
+            /* 요소들을 세로 방향으로 배치 */
+            align-items: center;
+            /* 가로 중앙 정렬 */
+            gap: 20px;
+            /* 헤더와 폼 사이 간격 */
+        }
+
+        header {
+            text-align: center;
+        }
+
+        .container {
+            background: white;
+            width: 600px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            align-items: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        label {
+            margin-left: 15px;
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #374151;
+        }
+
+        input {
+            margin-left: 15px;
+            width: 90%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            margin-left: 15px;
+            margin-right: 25px;
+        }
+
+        .btn {
+            width: 30%;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-save {
+            background-color: #374151;
+            color: white;
+        }
+
+        .btn-save:hover {
+            background-color: #1f2937;
+        }
+
+        .btn-cancel {
+            background-color: #e5e7eb;
+        }
+
+        .btn-cancel:hover {
+            background-color: #d1d5db;
+        }
+
+        .logo-image {
+            width: 300px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="wrapper">
+        <header>
+            <img src="images/snapnote_logo.png" alt="사이트 로고" class="logo-image">
+        </header>
+
+        <div class="container">
+            <h2>개인정보 수정</h2>
+            <div class="form-group">
+                <label for="userName">사용자 이름</label>
+                <input type="text" id="userName" disabled>
+            </div>
+            <div class="form-group">
+                <label for="userEmail">사용자 이메일</label>
+                <input type="email" id="userEmail" disabled>
+            </div>
+            <div class="form-group">
+                <label for="currentPassword">현재 비밀번호</label>
+                <input type="password" id="currentPassword" placeholder="현재 비밀번호 입력">
+            </div>
+            <div class="form-group">
+                <label for="newPassword">새 비밀번호</label>
+                <input type="password" id="newPassword" placeholder="새 비밀번호 입력">
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-save" onclick="updateUser()">저장</button>
+                <button class="btn btn-cancel" onclick="window.history.back();">취소</button>
+            </div>
+             <p id="updateMessage" style="color: red; margin-top: 10px;"></p>
+        </div>
+    </div>
+     <script>
+     document.addEventListener("DOMContentLoaded", async () => {
+           try {
+               const response = await fetch("http://localhost:8083/smart/user-info");
+
+               if (!response.ok) {
+                   throw new Error(`HTTP error! Status: ${response.status}`);
+               }
+
+               const userData = await response.json();
+               console.log("✅ 사용자 정보 불러옴:", userData);
+
+               document.getElementById("userName").value = userData.user_name;
+               document.getElementById("userEmail").value = userData.user_email;
+              
+           } catch (error) {
+               console.error("❌ 사용자 정보를 불러오는 데 실패했습니다.", error);
+           }
+       });
+
+   
+
+                async function updateUser() {
+                    const currentPassword = document.getElementById("currentPassword").value;
+                    const newPassword = document.getElementById("newPassword").value;
+
+                    if (!currentPassword || !newPassword) {
+                        showPopup("⚠️ 모든 필드를 입력하세요.");
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch("http://localhost:8083/smart/update-user", { // ✅ URL 확인
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                currentPassword: currentPassword,
+                                newPassword: newPassword
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            showPopup("✅ 비밀번호 변경이 완료되었습니다!", true);
+                        } else {
+                            showPopup("❌ 현재 비밀번호가 맞지 않습니다.");
+                        }
+                    } catch (error) {
+                        console.error("❌ 비밀번호 변경 실패", error);
+                    }
+                }
+
+                // ✅ 팝업창 띄우는 함수 (성공 시 이동 가능)
+                function showPopup(message, redirect = false) {
+                    alert(message);
+                    if (redirect) {
+                        window.location.href = "index"; // ✅ 비밀번호 변경 후 index.html로 이동
+                    }
+                }
+                
+    </script>
+</body>
+
+
+</html>

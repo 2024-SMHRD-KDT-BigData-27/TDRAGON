@@ -1,0 +1,40 @@
+<!-- templates/fragments/searchResults.html -->
+<div th:fragment="results">
+
+    <!-- ✅ 닫기 버튼 추가
+  <div style="text-align: right; margin-bottom: 10px;">
+<button id="closeSearchBtn" onclick="closeSearchResults()"
+        style="display: none; margin-bottom: 15px; padding: 6px 12px; background-color: #e5e7eb; border: none; border-radius: 5px; cursor: pointer;">
+  ✖ 닫기
+</button>
+  </div> -->
+
+  <div class="notes">
+    <th:block th:each="chunk : ${searchResults}">
+      <div class="note-item">
+        
+        <!-- 회의 제목 -->
+        <span class="note-title">
+          <a th:href="@{/notepage(idx=${chunk.meetingIdx})}"
+             style="text-decoration: none; color: inherit;">
+            [[${chunk.meetings.meeting_title}]]
+          </a>
+        </span>
+
+        <!-- 청크 텍스트 -->
+        <span class="note-chunk"
+              style="flex: 2; color: #4b5563; font-size: 13px; padding-left: 10px;">
+          [[${chunk.chunkText}]]
+        </span>
+
+        <!-- 회의 생성일 -->
+        <span class="note-date"
+              th:text="${#temporals.format(chunk.meetings.created_at, 'yy-MM-dd')}">
+          날짜
+        </span>
+      </div>
+    </th:block>
+  
+  </div>
+
+</div>

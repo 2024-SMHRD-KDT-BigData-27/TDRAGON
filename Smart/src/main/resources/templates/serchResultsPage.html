@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>🔍 검색 결과</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .note-item { padding: 10px; border-bottom: 1px solid #ddd; }
+    .note-title { font-weight: bold; color: #2c3e50; }
+    .note-chunk { display: block; color: #555; margin: 5px 0; }
+    .note-date { color: #999; font-size: 12px; float: right; }
+    .close-btn {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      padding: 5px 10px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="close-btn" onclick="window.close()">닫기</button>
+
+  <h2>🔍 검색 결과</h2>
+
+  <div class="notes">
+    <th:block th:each="chunk : ${searchResults}">
+      <div class="note-item">
+        <span class="note-title">
+          <a th:href="@{/notepage(idx=${chunk.meetingIdx})}" target="_blank">
+            [[${chunk.meetings.meeting_title}]]
+          </a>
+        </span>
+        <span class="note-date"
+              th:text="${#temporals.format(chunk.meetings.created_at, 'yy-MM-dd HH:mm')}"></span>
+        <span class="note-chunk">
+          [[${chunk.chunkText}]]
+        </span>
+      </div>
+    </th:block>
+  </div>
+
+</body>
+</html>
